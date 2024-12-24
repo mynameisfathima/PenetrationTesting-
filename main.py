@@ -1,69 +1,27 @@
-import requests
-import yaml
+import sys
+from engine.template_parser import load_templates_from_directory
+from engine.scanner import Scanner
+from engine.utils import print_results
 
-def load_yaml(file_path):
-    """
-    Load and parse a YAML file.
 
-    Args:
-        file_path (str): Path to the YAML file.
+def main():
+    if len(sys.argv) < 2:
+        print(f"Usage: python {sys.argv[0]} <target_url> [<templates_directory>]")
+        # sys.exit(1)
 
-    Returns:
-        dict: Parsed YAML content.
-    """
-    try:
-        with open(file_path, 'r') as file:
-            return yaml.safe_load(file)
-    except Exception as e:
-        print(f"Failed to load YAML file: {e}")
-        return None
+    target_url = sys.argv[1] 
+    templates_dir = sys.argv[2] if len(sys.argv) > 2 else "templates/http"
 
-def check_http_page(base_url, path, allow_redirects=True, max_redirects=1):
-    """
-    Sends a GET request to the given URL and checks if the response status code is 200.
+    # Load the templates
+    templates = load_templates_from_directory(templates_dir)
+    # Create the scanner instance
+    scanner = Scanner(templates)
 
-    Args:
-        base_url (str): The base URL to send the request to.
-        path (str): The path to append to the base URL.
-        allow_redirects (bool): Whether to allow redirects.
-        max_redirects (int): Maximum number of redirects to follow.
+    # Run the scan
+    results = scanner.scan(target_url)
+    for idx, result in enumerate(results):
+        print(f"Result #{idx + 1}, result for {result['name']}: {result['matched']}")
 
-    Returns:
-        bool: True if the response status code is 200, False otherwise.
-    """
-    url = f"http://{base_url}{path}"
-    try:
-        response = requests.get(url, allow_redirects=allow_redirects, timeout=5)
-        return response.status_code == 200
-    except requests.RequestException as e:
-        print(f"Error occurred while checking HTTP page: {e}")
-        return False
 
 if __name__ == "__main__":
-    yaml_file_path = r"C:\Users\ASUS\kmea\PenetrationTesting\intake\test.yaml"
-    config = load_yaml(yaml_file_path)
-
-    if not config:
-        print("Failed to load configuration from YAML file.")
-        exit(1)
-
-    base_url = "google.com"
-    http_config = config.get('http', [])
-
-    for entry in http_config:
-        method = entry.get('method', 'GET')
-        paths = entry.get('path', [])
-        allow_redirects = entry.get('host-redirects', True)
-        max_redirects = entry.get('max-redirects', 1)
-
-        if method == 'GET':
-            for path in paths:
-                print(f"Checking HTTP page availability for {base_url}{path}...")
-                is_available = check_http_page(base_url, path, allow_redirects, max_redirects)
-
-                if is_available:
-                    print(f"HTTP page at {base_url}{path} is available (status code 200).")
-                    assert is_available, f"The page at {path} should be available."
-                else:
-                    print(f"HTTP page at {base_url}{path} is not available.")
-                    assert is_available, f"The page at {path} is not available."
+    main()
