@@ -1,0 +1,16 @@
+id: referrer-policy-check
+info:
+  name: Referrer Policy Header Check
+  author: Project
+  severity: low
+  description: Checks for the presence of the Referrer-Policy header.
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    matchers:
+      - type: header
+        part: header
+        name: Referrer-Policy
+        condition: present
