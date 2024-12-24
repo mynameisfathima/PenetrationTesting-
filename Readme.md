@@ -32,7 +32,8 @@ requests:
 
 In the above yaml it is expected the application sends a request to baseURL and route login, then it checks if the response hits 200 as well as if the page contains the name "login" which is done by the regex. 
 
-
-Test Case 1 :
- python3 main.py https://google.com templates/http
+<small>
+Test Case 1 
+python3 main.py https://google.com templates/http
+<small>
 ---
