@@ -9,7 +9,7 @@
 
 #### Anatomy of Yaml
 
-
+```yaml
 id: "login page checker"
 info:
   name: "See if Login page exist"
@@ -28,6 +28,7 @@ requests:
     status:
 
     - 200
+```
 
 In the above yaml it is expected the application sends a request to baseURL and route login, then it checks if the response hits 200 as well as if the page contains the name "login" which is done by the regex. 
 
