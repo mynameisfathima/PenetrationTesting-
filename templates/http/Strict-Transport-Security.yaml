@@ -2,15 +2,26 @@ id: strict-transport-security-check
 info:
   name: Strict Transport Security Header Check
   author: Project
-  severity: low
-  description: Checks for the presence of the Strict-Transport-Security header.
+  severity: High
+  description: Checks for the presence and proper configuration of the Strict-Transport-Security header.
 
 http:
   - method: GET
     path:
       - "{{BaseURL}}"
     matchers:
+      # Check that the header is present
       - type: header
         part: header
         name: Strict-Transport-Security
         condition: present
+      # Check that the header contains a valid "max-age" value
+      - type: word
+        words:
+          - "max-age="
+        part: header
+      # Optionally, check for "includeSubDomains" (common for better security)
+      - type: word
+        words:
+          - "includeSubDomains"
+        part: header
