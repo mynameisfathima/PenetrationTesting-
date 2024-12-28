@@ -20,8 +20,21 @@ def run_matchers(response: Response, matchers_config: List[Dict[str, Any]]) -> b
         elif matcher_type == "status":
             if not status_match(response, matcher):
                 return False
-        
-        # TODO : Add more matchers here
+        elif matcher_type == "method":
+            if not method_match(response, matcher):
+                return False
+        elif matcher_type == "redirect":
+            if not redirect_match(response, matcher):
+                return False
+        elif matcher_type == "subdomain":
+            if not subdomain_match(response, matcher):
+                return False
+        elif matcher_type == "cookie":
+            if not cookie_match(response, matcher):
+                return False
+        elif matcher_type == "time":
+            if not time_match(response, matcher):
+                return False
     return True
 
 
@@ -51,3 +64,34 @@ def status_match(response: Response, matcher: Dict[str, Any]) -> bool:
     """
     statuses = matcher.get("status", [])
     return response.status_code in statuses
+
+def method_match(response: Response, matcher: Dict[str, Any]) -> bool:
+    expected_method = matcher.get("method")
+    return response.request.method.lower() == expected_method.lower()
+
+def redirect_match(response: Response, matcher: Dict[str, Any]) -> bool:
+    expected_redirect_url = matcher.get("redirect_url")
+    return response.is_redirect and response.headers.get("Location") == expected_redirect_url
+
+from urllib.parse import urlparse
+
+def subdomain_match(response: Response, matcher: Dict[str, Any]) -> bool:
+    subdomain_to_match = matcher.get("subdomain")
+    if not subdomain_to_match:
+        return False
+    subdomain = urlparse(response.url).hostname.split('.')[0]
+    return subdomain == subdomain_to_match
+
+def cookie_match(response: Response, matcher: Dict[str, Any]) -> bool:
+    cookies_to_match = matcher.get("cookies", {})
+    for cookie, expected_value in cookies_to_match.items():
+        if response.cookies.get(cookie) != expected_value:
+            return False
+    return True
+
+def time_match(response: Response, matcher: Dict[str, Any]) -> bool:
+    response_time = matcher.get("time")
+    if response_time is None:
+        return True  # No time constraint
+    return response.elapsed.total_seconds() <= response_time
+
