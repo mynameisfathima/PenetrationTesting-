@@ -56,10 +56,22 @@ class Scanner:
                     for warning in header_warnings:
                         print(f"[WARNING] Header issues found for {url}: {warning}")
 
+                # Check if any critical headers are missing and set matched to False
+                if any("Missing" in warning for warning in header_warnings):
+                    return {
+                        "template_id": template_id,
+                        "name": template_info.get("name"),
+                        "author": template_info.get("author"),
+                        "severity": template_info.get("severity"),
+                        "url": url,
+                        "status_code": response.status_code,
+                        "matched": False,  # Matched is False due to missing headers
+                    }
+
                 # Check matchers and handle result
                 matched_result = run_matchers(response, matchers_config)
 
-                # Only consider the result if no header issues are found
+                # Only consider the result if no header issues are found and matchers are true
                 if matched_result and not header_warnings:
                     return {
                         "template_id": template_id,
@@ -75,7 +87,6 @@ class Scanner:
                 print(f"[ERROR] Request failed for {url}: {e}")
 
         return None
-
     def _check_headers(self, headers: Dict[str, str], url: str) -> List[str]:
         """
         Analyzes headers for missing or insecure configurations.
