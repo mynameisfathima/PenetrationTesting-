@@ -5,6 +5,7 @@ from engine.utils import print_results
 
 
 def main():
+    # TODO, setup CLI Interface https://www.geeksforgeeks.org/command-line-option-and-argument-parsing-using-argparse-in-python/
     if len(sys.argv) < 2:
         print(f"Usage: python {sys.argv[0]} <target_url> [<templates_directory>]")
         sys.exit(1)
