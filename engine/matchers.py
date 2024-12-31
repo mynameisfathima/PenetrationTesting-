@@ -11,6 +11,7 @@ def run_matchers(response: Response, matchers_config: List[Dict[str, Any]]) -> b
     """
     for matcher in matchers_config:
         matcher_type = matcher.get("type")
+
         if matcher_type == "regex":
             if not regex_match(response, matcher):
                 return False
@@ -20,24 +21,32 @@ def run_matchers(response: Response, matchers_config: List[Dict[str, Any]]) -> b
         elif matcher_type == "status":
             if not status_match(response, matcher):
                 return False
-        elif matcher_type == "method":
-            if not method_match(response, matcher):
-                return False
-        elif matcher_type == "redirect":
-            if not redirect_match(response, matcher):
-                return False
-        elif matcher_type == "subdomain":
-            if not subdomain_match(response, matcher):
-                return False
-        elif matcher_type == "cookie":
-            if not cookie_match(response, matcher):
-                return False
-        elif matcher_type == "time":
-            if not time_match(response, matcher):
+        elif matcher_type == "header":
+            if not header_search(response, matcher):
                 return False
     return True
 
 
+def header_search(response, matcher):
+    headers = dict(response.headers)
+    stuff_to_match = matcher['name']
+    condition_type = matcher['condition'] # Either Present or Contains
+    if condition_type == 'present':
+        if stuff_to_match in headers:
+            return True
+        else:
+            return False
+    elif condition_type == "contains":
+        if stuff_to_match in headers:
+            header_to_check = headers[stuff_to_match]
+            value = matcher['value']
+            if value in header_to_check:
+                return True
+            else:
+                return False
+        else:
+            return False
+    
 def regex_match(response: Response, matcher: Dict[str, Any]) -> bool:
     """
     Checks if the response body matches a given regex pattern.
@@ -65,33 +74,5 @@ def status_match(response: Response, matcher: Dict[str, Any]) -> bool:
     statuses = matcher.get("status", [])
     return response.status_code in statuses
 
-def method_match(response: Response, matcher: Dict[str, Any]) -> bool:
-    expected_method = matcher.get("method")
-    return response.request.method.lower() == expected_method.lower()
 
-def redirect_match(response: Response, matcher: Dict[str, Any]) -> bool:
-    expected_redirect_url = matcher.get("redirect_url")
-    return response.is_redirect and response.headers.get("Location") == expected_redirect_url
-
-from urllib.parse import urlparse
-
-def subdomain_match(response: Response, matcher: Dict[str, Any]) -> bool:
-    subdomain_to_match = matcher.get("subdomain")
-    if not subdomain_to_match:
-        return False
-    subdomain = urlparse(response.url).hostname.split('.')[0]
-    return subdomain == subdomain_to_match
-
-def cookie_match(response: Response, matcher: Dict[str, Any]) -> bool:
-    cookies_to_match = matcher.get("cookies", {})
-    for cookie, expected_value in cookies_to_match.items():
-        if response.cookies.get(cookie) != expected_value:
-            return False
-    return True
-
-def time_match(response: Response, matcher: Dict[str, Any]) -> bool:
-    response_time = matcher.get("time")
-    if response_time is None:
-        return True  # No time constraint
-    return response.elapsed.total_seconds() <= response_time
 
