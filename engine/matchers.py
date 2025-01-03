@@ -46,6 +46,24 @@ def header_search(response, matcher):
                 return False
         else:
             return False
+
+    elif condition_type == "or":
+        sql_error_keywords = [
+            "SQL syntax error",
+            "MySQL",
+            "syntax error",
+            "unclosed quotation mark",
+            "Warning: mysql_fetch",
+            "Unknown column",
+            "database error"
+        ]
+
+        for key, value in headers.items():
+            if any(error_keyword in value for error_keyword in sql_error_keywords):
+                return True
+
+        return False
+    return False
     
 def regex_match(response: Response, matcher: Dict[str, Any]) -> bool:
     """
