@@ -52,7 +52,7 @@ def main():
     results = scanner.scan(target_url)
 
     for idx, result in enumerate(results):
-        print(f"Result #{idx + 1}, result for {result['name']}: {result['matched']}")
+        print(f"[{idx + 1}] {result['name']}:[{result['matched']}][{result['severity']}]")
 
 
 if __name__ == "__main__":
