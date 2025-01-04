@@ -1,6 +1,7 @@
 import logging
 from updateutils import get_update_tool_callback
-from pdcpauth import check_and_validate_credentials
+from auth.pdcpauth import check_and_validate_credentials
+
 
 # Define the banner
 banner = '''
@@ -20,12 +21,12 @@ def show_banner():
 # Update nuclei binary/tool to the latest version
 def nuclei_tool_update_callback():
     show_banner()
-    get_update_tool_callback('optec', '1.0.0')()
+    get_update_tool_callback('nuclei', '1.0.0')()
 
 # Authenticate with PDCP
 def auth_with_pdcp():
     show_banner()
-    check_and_validate_credentials('optec')
+    check_and_validate_credentials('nuclei')
 
 # Example usage
 if __name__ == "__main__":
