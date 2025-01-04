@@ -5,6 +5,22 @@ from engine.template_parser import load_templates_from_directory
 from engine.scanner import Scanner
 from banner import show_banner  # Assuming you have the banner function
 
+def load_templates_from_directory_recursive(directory_path):
+    """
+    Recursively loads all YAML files from a directory and its subdirectories.
+    """
+    templates = []
+    for root, dirs, files in os.walk(directory_path):
+        for file in files:
+            if file.endswith(".yaml"):
+                file_path = os.path.join(root, file)
+                with open(file_path, 'r') as file:
+                    try:
+                        templates.append(yaml.safe_load(file))  # Parse the YAML file
+                    except yaml.YAMLError as e:
+                        print(f"Error parsing YAML file {file_path}: {e}")
+    return templates
+
 def main():
     # Show banner at the start
     show_banner()
@@ -19,11 +35,12 @@ def main():
         help="The target URL to scan.",
     )
 
+    # Add templates argument with default to 'templates/'
     parser.add_argument(
         "-t", "--templates",
-        default="templates/",
+        default="templates/http",  # Default is the 'templates/http' folder
         help=("Path to a specific template file or directory containing YAML templates. "
-              "Default: templates/")
+              "Default: templates/http")
     )
 
     # Parse arguments
@@ -42,8 +59,8 @@ def main():
                 print(f"Error parsing YAML file: {e}")
                 exit(1)
     elif os.path.isdir(templates_path):
-        print(f"Loading all YAML files from directory: {templates_path}")
-        templates = load_templates_from_directory(templates_path)
+        print(f"Loading all YAML files from directory: {templates_path} (including subdirectories)")
+        templates = load_templates_from_directory_recursive(templates_path)
     else:
         print(f"Invalid path: {templates_path}. Ensure it points to a .yaml file or a directory.")
         exit(1)
