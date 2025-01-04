@@ -1,9 +1,7 @@
-id: permissions-policy-check
-info:
-  name: Permissions Policy Header Check
-  author: Project
-  severity: low
-  description: Checks for the presence of the Permissions-Policy header.
+name: Permissions Policy Header Check
+author: Project
+severity: low
+description: Checks for the presence of the Permissions-Policy header.
 
 http:
   - method: GET
