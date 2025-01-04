@@ -4,22 +4,8 @@ import yaml
 from engine.template_parser import load_templates_from_directory
 from engine.scanner import Scanner
 from banner import show_banner  # Assuming you have the banner function
+from urllib.parse import urlparse
 
-def load_templates_from_directory_recursive(directory_path):
-    """
-    Recursively loads all YAML files from a directory and its subdirectories.
-    """
-    templates = []
-    for root, dirs, files in os.walk(directory_path):
-        for file in files:
-            if file.endswith(".yaml"):
-                file_path = os.path.join(root, file)
-                with open(file_path, 'r') as file:
-                    try:
-                        templates.append(yaml.safe_load(file))  # Parse the YAML file
-                    except yaml.YAMLError as e:
-                        print(f"Error parsing YAML file {file_path}: {e}")
-    return templates
 
 def main():
     # Show banner at the start
@@ -35,18 +21,25 @@ def main():
         help="The target URL to scan.",
     )
 
-    # Add templates argument with default to 'templates/'
     parser.add_argument(
         "-t", "--templates",
-        default="templates",  # Default is the 'templates' folder
+        default="templates/",
         help=("Path to a specific template file or directory containing YAML templates. "
-              "Default: templates/")
+              "Default: templates/"),
     )
 
     # Parse arguments
     args = parser.parse_args()
 
+    # Define target_url from the command line argument
     target_url = args.target_url  # Get the target URL from the argument
+
+    # Check if the target_url has a scheme (http:// or https://)
+    parsed_url = urlparse(target_url)
+    if not parsed_url.scheme:
+        # If no scheme, prepend http://
+        target_url = f"http://{target_url}"
+
     templates_path = args.templates
 
     # Check and load YAML templates
@@ -59,40 +52,57 @@ def main():
                 print(f"Error parsing YAML file: {e}")
                 exit(1)
     elif os.path.isdir(templates_path):
-        print(f"Loading all YAML files from directory: {templates_path} (including subdirectories)")
-        templates = load_templates_from_directory_recursive(templates_path)
+        print(f"Loading all YAML files from directory: {templates_path}")
+        templates = load_templates_from_directory(templates_path)
     else:
         print(f"Invalid path: {templates_path}. Ensure it points to a .yaml file or a directory.")
         exit(1)
 
-    # Ask user if they want to scan all templates or a specific template
-    scan_all = input("Do you want to scan all templates? (y/n): ").lower()
-    if scan_all != 'y':
-        # If user doesn't want to scan all, ask for specific file
-        print("Available templates:")
-        template_files = [file for root, dirs, files in os.walk(templates_path) for file in files if file.endswith(".yaml")]
-        for idx, template in enumerate(template_files, 1):
-            print(f"{idx}. {template}")
-        choice = int(input("Enter the number of the template you want to scan: ")) - 1
-        chosen_template = template_files[choice]
-        template_path = os.path.join(templates_path, chosen_template)
-        with open(template_path, 'r') as file:
-            try:
-                templates = [yaml.safe_load(file)]  # Load the chosen template
-            except yaml.YAMLError as e:
-                print(f"Error parsing YAML file: {e}")
-                exit(1)
+    # Ask the user if they want to scan all or specific templates
+    choice = input("Do you want to scan ALL templates or SPECIFIC ones? (Y/N): ").strip().lower()
+
+    if choice == 'y':
+        # Scan all templates
+        print("Scanning all templates...")
+        selected_templates = templates
+    elif choice == 'n':
+        # Let the user select specific templates by numbers
+        print("\nPlease enter the numbers of the templates you'd like to scan (e.g., 1 2 4 6): ")
+        # Safe print for template names
+        for idx, template in enumerate(templates, 1):
+            # Ensure the template has the expected structure before accessing it
+            template_name = template.get('info', {}).get('name', 'Unnamed Template')
+            print(f"{idx}. {template_name}")  # Display template names for selection
+        
+        selected_numbers = input("\nEnter your choices: ").strip().split()
+        selected_templates = []
+
+        # Add the selected templates to the list
+        try:
+            selected_numbers = [int(num) - 1 for num in selected_numbers]  # Convert to 0-based index
+            selected_templates = [templates[i] for i in selected_numbers]
+        except (ValueError, IndexError):
+            print("Invalid input. Exiting.")
+            exit(1)
+
+    else:
+        print("Invalid choice. Exiting.")
+        exit(1)
 
     # Create the scanner instance
-    scanner = Scanner(templates)
+    scanner = Scanner(selected_templates)
 
     # Run the scan
-    print(f"Scanning target URL: {target_url}")
+    print(f"\nScanning target URL: {target_url}")
     results = scanner.scan(target_url)
 
     # Display the results
-    for idx, result in enumerate(results):
-        print(f"[{idx + 1}] {result['name']}:[{result['matched']}][{result['severity']}]")
+    print("\nScan Results:")
+    if not results:
+        print("No results found or templates did not match any conditions.")
+    else:
+        for idx, result in enumerate(results):
+            print(f"[{idx + 1}] {result['name']}:[{result['matched']}][{result['severity']}]")
 
 if __name__ == "__main__":
     main()
