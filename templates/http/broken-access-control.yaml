@@ -1,0 +1,23 @@
+id: broken-access-control-test
+info:
+  name: Broken Access Control Vulnerability Test
+  description: Test for broken access control in sensitive sections.
+  severity: Critical
+  author: Project
+  tags:
+    - access
+    - control
+    - security
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}/admin"
+    headers:
+      User-Agent: Access-Control-Tester
+    matchers:
+      - type: word
+        words:
+          - "Access Denied"
+          - "Forbidden"
+        condition: or
