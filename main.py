@@ -1,4 +1,3 @@
-# main.py
 import argparse
 import os
 import yaml
@@ -10,26 +9,27 @@ def main():
     # Show banner at the start
     show_banner()
 
-    # Remove target_url argument from command line input
-    target_url = "http://www.google.com"  # Hardcode the target URL here
-
     parser = argparse.ArgumentParser(
         description="A tool for scanning a target URL using templates."
     )
 
+    # Add target_url argument (no default, making it required)
     parser.add_argument(
-    "-t", "--templates",
-    default="templates/",
-    help=("Path to a specific template file or directory containing YAML templates. "
-          "Default: templates/"
-        ),
+        "target_url",
+        help="The target URL to scan.",
     )
-    
-    
+
+    parser.add_argument(
+        "-t", "--templates",
+        default="templates/",
+        help=("Path to a specific template file or directory containing YAML templates. "
+              "Default: templates/")
+    )
 
     # Parse arguments
     args = parser.parse_args()
 
+    target_url = args.target_url  # Get the target URL from the argument
     templates_path = args.templates
 
     # Check and load YAML templates
@@ -61,4 +61,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
