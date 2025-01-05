@@ -1,0 +1,40 @@
+name: "X XSS Protection Header Check"
+author: Project
+severity: low
+description: "Checks if the X-XSS-Protection header contains '1; mode=block'."
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    matchers:
+      - type: header
+        part: header
+        name: X-XSS-Protection
+        value: "1; mode=block"
+        condition: contains
+
+steps:
+  - name: "Fetch HTTP Headers"
+    type: "http"
+    method: "GET"
+    path: "/"
+    extract:
+      - name: "xss_header"
+        type: "header"
+        key: "X-XSS-Protection"
+    expected_status: "exists"
+
+  - name: "Validate X-XSS-Protection Header"
+    type: "regex"
+    pattern: "1; mode=block"
+    target: "xss_header"
+    expected_status: "matches"
+
+actions:
+  - if: "matched"
+    do: "log"
+    message: "X-XSS-Protection header is present and valid."
+  - if: "not_matched"
+    do: "log"
+    message: "X-XSS-Protection header is missing or improperly configured."

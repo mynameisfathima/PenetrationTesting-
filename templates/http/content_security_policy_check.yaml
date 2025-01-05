@@ -1,0 +1,34 @@
+name: "Content Security Policy Check"
+description: "Checks if the Content-Security-Policy header is present and properly configured"
+severity: "high"
+conditions:
+  - type: "http"
+    method: "get"
+    path: "/"
+    headers:
+      - name: "Content-Security-Policy"
+        exists: true
+steps:
+  - name: "Fetch HTTP Headers"
+    type: "http"
+    method: "get"
+    path: "/"
+    extract:
+      - name: "csp_header"
+        type: "header"
+        key: "Content-Security-Policy"
+    expected_status: "exists"
+
+  - name: "Validate CSP Header"
+    type: "regex"
+    pattern: "default-src|script-src|style-src|img-src|connect-src|font-src"
+    target: "csp_header"
+    expected_status: "matches"
+
+actions:
+  - if: "matched"
+    do: "log"
+    message: "Content-Security-Policy header is present and valid."
+  - if: "not_matched"
+    do: "log"
+    message: "Content-Security-Policy header is missing or improperly configured."

@@ -1,0 +1,25 @@
+id: insecure-deserialization-test
+info:
+  name: Insecure Deserialization Vulnerability Test
+  description: Test for insecure deserialization vulnerabilities in user inputs.
+  severity: High
+  author: Project
+  tags:
+    - deserialization
+    - security
+
+
+http:
+  - method: POST
+    path:
+      - "{{BaseURL}}/deserialize"
+    body:
+      - "username=admin&password=test&data=%s"  # Potential for insecure deserialization payload
+    headers:
+      Content-Type: application/x-www-form-urlencoded
+    matchers:
+      - type: word
+        words:
+          - "Object"
+          - "deserialization"
+        condition: or

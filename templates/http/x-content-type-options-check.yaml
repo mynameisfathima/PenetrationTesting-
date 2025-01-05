@@ -1,0 +1,15 @@
+name: X Content Type Options Header Check
+author: Project
+severity: low
+description: Checks if the X-Content-Type-Options header contains "nosniff".
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    matchers:
+      - type: header
+        part: header
+        name: X-Content-Type-Options
+        value: nosniff
+        condition: contains

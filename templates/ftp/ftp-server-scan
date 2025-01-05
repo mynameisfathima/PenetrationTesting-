@@ -1,0 +1,66 @@
+name: FTP Server Scan
+author: Your Name
+severity: medium
+description: Scans for common vulnerabilities and misconfigurations in an FTP server.
+
+ftp:
+  - method: GET
+    path: "/"
+    matchers:
+      - type: banner
+        part: response
+        value: "220"
+        condition: starts_with
+        description: "Banner grab to identify FTP server"
+        
+  - method: GET
+    path: "/"
+    matchers:
+      - type: header
+        part: response_header
+        name: "220"
+        value: "vsFTPd"
+        condition: contains
+        description: "Check for vsFTPd version"
+
+  - method: POST
+    path: "/"
+    matchers:
+      - type: command
+        part: response
+        command: "anonymous login"
+        condition: success
+        description: "Check if anonymous login is allowed"
+        
+  - method: GET
+    path: "/"
+    matchers:
+      - type: command
+        part: response
+        command: "LIST"
+        condition: success
+        description: "Check if directory listing is allowed"
+
+steps:
+  - name: "Banner Grab"
+    type: "ftp"
+    description: "Retrieve the FTP server banner to identify the server type and version."
+    expected_status: "exists"
+
+  - name: "Anonymous Login Check"
+    type: "ftp"
+    description: "Attempt to log in anonymously to check if anonymous login is allowed."
+    expected_status: "exists"
+
+  - name: "Directory Listing Check"
+    type: "ftp"
+    description: "Attempt to retrieve a directory listing to check if listing is allowed."
+    expected_status: "exists"
+
+actions:
+  - if: "matched"
+    do: "log"
+    message: "FTP server configuration is secure."
+  - if: "not_matched"
+    do: "log"
+    message: "Possible misconfiguration or vulnerability detected in the FTP server."

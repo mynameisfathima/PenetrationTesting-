@@ -1,0 +1,14 @@
+name: Permissions Policy Header Check
+author: Project
+severity: low
+description: Checks for the presence of the Permissions-Policy header.
+
+http:
+  - method: GET
+    path:
+      - "{{BaseURL}}"
+    matchers:
+      - type: header
+        part: header
+        name: Permissions-Policy
+        condition: present

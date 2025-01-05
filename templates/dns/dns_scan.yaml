@@ -1,0 +1,32 @@
+name: "DNS Record Scanner"
+description: "Scans for DNS records of a given domain"
+severity: "medium"
+conditions:
+  - type: "dns"
+    method: "lookup"
+    expected: 
+      - type: "A"
+      - type: "CNAME"
+      - type: "TXT"
+steps:
+  - name: "Fetch DNS A records"
+    type: "dns"
+    record_type: "A"
+    expected_status: "exists"
+
+  - name: "Fetch DNS CNAME records"
+    type: "dns"
+    record_type: "CNAME"
+    expected_status: "optional"
+
+  - name: "Fetch DNS TXT records"
+    type: "dns"
+    record_type: "TXT"
+    expected_status: "optional"
+actions:
+  - if: "matched"
+    do: "log"
+    message: "Found expected DNS records"
+  - if: "not_matched"
+    do: "log"
+    message: "Some DNS records are missing or unexpected"
