@@ -1,24 +1,26 @@
-# engine/template_parser.py
-import yaml
 import os
+import yaml
+from typing import List, Dict, Any
 
-def load_templates_from_directory(directory):
+
+def load_templates_from_directory(directory: str) -> List[Dict[str, Any]]:
     """
-    Loads all YAML templates from the specified directory.
-    Args:
-        directory (str): Path to the directory containing YAML template files.
-    Returns:
-        list: A list of parsed templates (as dictionaries).
+    Loads all YAML files from the specified directory and returns
+    them as a list of parsed dictionaries.
+
+    The directory needs to be till yaml or else nothing at all 
+    incase of no  directory is passed, load all yaml 
+    TODO: Handled by another function - Who will take care of this ?
     """
     templates = []
-    # Iterate over all files in the directory
     for filename in os.listdir(directory):
-        if filename.endswith(".yaml"):  # Only load .yaml files
+        if filename.endswith(".yaml") or filename.endswith(".yml"):
             filepath = os.path.join(directory, filename)
-            with open(filepath, 'r') as file:
+            with open(filepath, "r", encoding="utf-8") as f:
                 try:
-                    # Parse the YAML file into a dictionary and append to templates list
-                    templates.append(yaml.safe_load(file))
+                    data = yaml.safe_load(f) # Using safe load here, I dont want deserialization attack happening here !
+                    if data:
+                        templates.append(data) # TODO : Handle else case YAML errors may need a blank
                 except yaml.YAMLError as e:
-                    print(f"Error parsing YAML file {filename}: {e}")
+                    print(f"[ERROR] Failed to parse YAML file {filename}: {e}")
     return templates
