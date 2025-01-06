@@ -1,12 +1,10 @@
-id: security-misconfiguration-test
-info:
-  name: Security Misconfiguration Vulnerability Test
-  description: Test for misconfiguration issues, such as access to sensitive files.
-  severity: High
-  author: Project
-  tags:
-    - misconfiguration
-    - security
+name: Security Misconfiguration Vulnerability Test
+description: Test for misconfiguration issues, such as access to sensitive files.
+severity: High
+author: Project
+tags:
+  - misconfiguration
+  - security
 http:
   - method: GET
     path:

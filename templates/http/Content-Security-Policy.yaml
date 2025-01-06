@@ -1,9 +1,7 @@
-id: content-security-policy-check
-info:
-  name: Content Security Policy Header Check
-  author: Project
-  severity: low
-  description: Checks for the presence of the Content-Security-Policy header.
+name: Content Security Policy Header Check
+author: Project
+severity: low
+description: Checks for the presence of the Content-Security-Policy header.
 
 http:
   - method: GET

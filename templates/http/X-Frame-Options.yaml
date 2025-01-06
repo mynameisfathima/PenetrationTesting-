@@ -1,9 +1,7 @@
-id: x-frame-options-check
-info:
-  name: X Frame Options Header Check
-  author: Project
-  severity: low
-  description: Checks for the presence of the X-Frame-Options header.
+name: X Frame Options Header Check
+author: Project
+severity: low
+description: Checks for the presence of the X-Frame-Options header.
 
 http:
   - method: GET

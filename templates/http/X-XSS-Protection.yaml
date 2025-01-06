@@ -1,9 +1,7 @@
-id: x-xss-protection-check
-info:
-  name: X XSS Protection Header Check
-  author: Project
-  severity: low
-  description: Checks if the X-XSS-Protection header contains "1; mode=block".
+name: X XSS Protection Header Check
+author: Project
+severity: low
+description: Checks if the X-XSS-Protection header contains "1; mode=block".
 
 http:
   - method: GET

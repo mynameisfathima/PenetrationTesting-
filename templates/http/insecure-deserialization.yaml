@@ -1,10 +1,8 @@
-id: insecure-deserialization-test
-info:
-  name: Insecure Deserialization Vulnerability Test
-  description: Test for insecure deserialization vulnerabilities in user inputs.
-  severity: High
-  author: Project
-  tags:
+name: Insecure Deserialization Vulnerability Test
+description: Test for insecure deserialization vulnerabilities in user inputs.
+severity: High
+author: Project
+tags:
     - deserialization
     - security
 

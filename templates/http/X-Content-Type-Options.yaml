@@ -1,9 +1,7 @@
-id: x-content-type-options-check
-info:
-  name: X Content Type Options Header Check
-  author: Project
-  severity: low
-  description: Checks if the X-Content-Type-Options header contains "nosniff".
+name: X Content Type Options Header Check
+author: Project
+severity: low
+description: Checks if the X-Content-Type-Options header contains "nosniff".
 
 http:
   - method: GET

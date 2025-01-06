@@ -1,13 +1,11 @@
-id: sensitive-data-exposure-test
-info:
-  name: Sensitive Data Exposure Vulnerability Test
-  description: Test for sensitive data exposure in profile pages.
-  severity: Critical
-  author: Project
-  tags:
-    - data
-    - exposure
-    - privacy
+name: Sensitive Data Exposure Vulnerability Test
+description: Test for sensitive data exposure in profile pages.
+severity: Critical
+author: Project
+tags:
+  - data
+  - exposure
+  - privacy
 
 http:
   - method: GET
