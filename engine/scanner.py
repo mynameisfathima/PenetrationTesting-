@@ -21,16 +21,65 @@ class Scanner:
         for template in self.templates:
             template_id = template.get("id", "unknown-id")
             template_info = template.get("info", {})
-            template_requests = template.get("http", [])
-            print("Testing  template: ", template_id)
-            if template_id  == "broken-access-control-test":
-                for request_config in template_requests:
-                    result = self._process_request(template_id, template_info, request_config, target_url)
-                    if result:
-                        results.append(result)
+            for key, value in template.items():
+                if key == "id":
+                    continue
+                elif key == "info":
+                    continue
+                elif key == "http":
+                    template_requests = template.get("http", [])
+                    for request_config in template_requests:
+                        result = self._process_http_request(template_id, template_info, request_config, target_url)
+                        if result:
+                            results.append(result)
+                elif key == "ssl":
+                    template_requests = template.get("ssl", [])
+                    for request_config in template_requests: # SSL
+                        results = self._process_ssl_request(template_id, template_info, request_config, target_url)
         return results
 
-    def _process_request(self, template_id, template_info, request_config, target_url):
+    def _process_ssl_request(self, template_id, template_info, request_config, target_url):
+        paths = request_config.get("path", []) # TODO : Strip this to just domain name in case any path exists 
+        matchers_config = request_config.get("matchers", [])
+        for path in paths:
+            url = path.replace("{{BaseURL}}", target_url).strip("/")
+            try:
+                response = requests.get(url, verify=True)
+                if response.url.startswith("https://"):
+                    return {
+                        "template_id": template_id,
+                        "name": template_info.get("name"),
+                        "author": template_info.get("author"),
+                        "severity": template_info.get("severity"),
+                        "url": url,
+                        "status_code": response.status_code,
+                        "matched": "Flase", # As a postive result
+                    }
+                else:
+                    return {
+                        "template_id": template_id,
+                        "name": template_info.get("name"),
+                        "author": template_info.get("author"),
+                        "severity": template_info.get("severity"),
+                        "url": url,
+                        "status_code": response.status_code,
+                        "matched": "True", # As a negetive result
+                    }
+            except requests.exceptions.SSLError:
+                return {
+                        "template_id": template_id,
+                        "name": template_info.get("name"),
+                        "author": template_info.get("author"),
+                        "severity": template_info.get("severity"),
+                        "url": url,
+                        "status_code": response.status_code,
+                        "matched": "True", # As a negetive result
+                    }
+            except requests.exceptions.RequestException as e:
+                print("The request was errored out ", str(e))
+
+
+    def _process_http_request(self, template_id, template_info, request_config, target_url):
         """
         Process a single request configuration from a template.
         """

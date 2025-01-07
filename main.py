@@ -68,6 +68,9 @@ def main():
     print(f"Scanning target URL: {target_url}")
     
     results = scanner.scan(target_url)
+    if isinstance(results, dict): # In case only one yaml is preset for the printing to be more clean
+        results = [results]
+        
     for idx, result in enumerate(results):
         print(f"[{idx + 1}]{result['name']}: [{result['matched']}][{result['severity']}]")
 

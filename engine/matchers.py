@@ -11,7 +11,7 @@ def run_matchers(response: Response, matchers_config: List[Dict[str, Any]]) -> b
     """
     for matcher in matchers_config:
         matcher_type = matcher.get("type")
-        
+
         if matcher_type == "regex":
             if not regex_match(response, matcher):
                 return False
