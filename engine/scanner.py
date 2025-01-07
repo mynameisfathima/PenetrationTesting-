@@ -22,11 +22,12 @@ class Scanner:
             template_id = template.get("id", "unknown-id")
             template_info = template.get("info", {})
             template_requests = template.get("http", [])
-
-            for request_config in template_requests:
-                result = self._process_request(template_id, template_info, request_config, target_url)
-                if result:
-                    results.append(result)
+            print("Testing  template: ", template_id)
+            if template_id  == "broken-access-control-test":
+                for request_config in template_requests:
+                    result = self._process_request(template_id, template_info, request_config, target_url)
+                    if result:
+                        results.append(result)
         return results
 
     def _process_request(self, template_id, template_info, request_config, target_url):
@@ -37,7 +38,7 @@ class Scanner:
         paths = request_config.get("path", [])
         matchers_config = request_config.get("matchers", [])
         for path in paths:
-            url = path.replace("{{BaseURL}}", target_url).strip("/")  # Remove extra slashes
+            url = path.replace("{{BaseURL}}", target_url).strip("/")  # Remove extra slashes # TODO : Check for slashes and/or double slashes and then remove the same #noqa
             
             try:
                 # Make the request based on method
@@ -50,7 +51,7 @@ class Scanner:
                 matched_result = run_matchers(response, matchers_config)
 
                 # Combine results: Header issues override matchers
-                if matched_result:
+                if matched_result: # For clarity Lets keep if true it means there is a vulnerability and false means all good
                     return {
                         "template_id": template_id,
                         "name": template_info.get("name"),

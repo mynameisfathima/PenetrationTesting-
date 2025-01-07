@@ -52,13 +52,16 @@ def main():
             except yaml.YAMLError as e:
                 print(f"Error parsing YAML file: {e}")
                 exit(1)
+
     elif os.path.isdir(templates_path):
         print(f"Loading all YAML files from directory: {templates_path}")
         templates = load_templates_from_directory(templates_path)
+
     else:
         print(f"Invalid path: {templates_path}. Ensure it points to a .yaml file or a directory.")
         exit(1)
-    # Create the scanner instance
+
+    
     scanner = Scanner(templates)
 
     # Run the scan
