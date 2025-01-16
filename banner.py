@@ -1,22 +1,26 @@
 import logging
 from updateutils import get_update_tool_callback
 from auth.pdcpauth import check_and_validate_credentials
+from colorama import Fore, Style, init
 
+# Initialize colorama
+init(autoreset=True)
 
-# Define the banner
-banner = '''
-             __________________
-  ____  ____/_  __/ ____/ ____/
- / __ \/ __ \/ / / __/ / /
-/ /_/ / /_/ / / / /___/ /___
-\____/ .___/_/ /_____/\____/
-    /_/                          1.0.0
+# Define the banner with red color for ASCII art
+banner = f'''
+{Fore.RED}             __________________
+{Fore.RED}  ____  ____/{Fore.RED}_  __/ ____/ ____/
+{Fore.RED} / __ \\/ __ \\/ / / __/ / /
+{Fore.RED}/ /_/ / /_/ / / / /___/ /___
+{Fore.RED}\\____/ .___/_/ /_____/\\____/
+{Fore.RED}    /_/                        {Fore.YELLOW}1.0.0{Style.RESET_ALL}
+
+{Style.BRIGHT}{Fore.GREEN}                optec.asfaad.com
 '''
 
 # Show the banner to the user
 def show_banner():
-    print(f"{banner}")
-    print("\t\toptec.example.com\n")
+    print(banner)
 
 # Update nuclei binary/tool to the latest version
 def nuclei_tool_update_callback():

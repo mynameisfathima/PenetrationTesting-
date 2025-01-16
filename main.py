@@ -1,13 +1,17 @@
 import argparse
 import os
+import sys
+from colorama import Fore, Style, init  # Import colorama
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import yaml
 from engine.template_parser import load_templates_from_directory
 from engine.scanner import Scanner
-from banner import show_banner  # Assuming you have the banner function
-from urllib.parse import urlparse
-
+from banner import show_banner
 
 def main():
+    # Initialize colorama
+    init(autoreset=True)
+
     # Show banner at the start
     show_banner()
 
@@ -15,33 +19,30 @@ def main():
         description="A tool for scanning a target URL using templates."
     )
 
-    # Add target_url argument (no default, making it required)
     parser.add_argument(
         "target_url",
         help="The target URL to scan.",
     )
-
     parser.add_argument(
         "-t", "--templates",
-        default="templates/",
-        help=("Path to a specific template file or directory containing YAML templates. "
-              "Default: templates/"),
+        default="templates/http",
+        help=(
+            "Path to a specific template file or directory containing YAML templates. "
+            "Default: templates/http"
+        ),
+    )
+    parser.add_argument(
+        "-tag",
+        nargs="+",
+        help="Filter templates by tags. Provide one or more tags to filter.",
     )
 
-    # Parse arguments
+    # Parse the arguments
     args = parser.parse_args()
-
-    # Define target_url from the command line argument
-    target_url = args.target_url  # Get the target URL from the argument
-
-    # Check if the target_url has a scheme (http:// or https://)
-    parsed_url = urlparse(target_url)
-    if not parsed_url.scheme:
-        # If no scheme, prepend http://
-        target_url = f"http://{target_url}"
-
+    target_url = args.target_url
     templates_path = args.templates
-
+    selected_tags = args.tag
+     
     # Check and load YAML templates
     if os.path.isfile(templates_path) and templates_path.endswith(".yaml"):
         print(f"Loading specific template: {templates_path}")
@@ -51,58 +52,48 @@ def main():
             except yaml.YAMLError as e:
                 print(f"Error parsing YAML file: {e}")
                 exit(1)
+
     elif os.path.isdir(templates_path):
         print(f"Loading all YAML files from directory: {templates_path}")
         templates = load_templates_from_directory(templates_path)
+
     else:
         print(f"Invalid path: {templates_path}. Ensure it points to a .yaml file or a directory.")
         exit(1)
 
-    # Ask the user if they want to scan all or specific templates
-    choice = input("Do you want to scan ALL templates or SPECIFIC ones? (Y/N): ").strip().lower()
-
-    if choice == 'y':
-        # Scan all templates
-        print("Scanning all templates...")
-        selected_templates = templates
-    elif choice == 'n':
-        # Let the user select specific templates by numbers
-        print("\nPlease enter the numbers of the templates you'd like to scan (e.g., 1 2 4 6): ")
-        # Safe print for template names
-        for idx, template in enumerate(templates, 1):
-            # Ensure the template has the expected structure before accessing it
-            template_name = template.get('info', {}).get('name', 'Unnamed Template')
-            print(f"{idx}. {template_name}")  # Display template names for selection
-        
-        selected_numbers = input("\nEnter your choices: ").strip().split()
-        selected_templates = []
-
-        # Add the selected templates to the list
-        try:
-            selected_numbers = [int(num) - 1 for num in selected_numbers]  # Convert to 0-based index
-            selected_templates = [templates[i] for i in selected_numbers]
-        except (ValueError, IndexError):
-            print("Invalid input. Exiting.")
-            exit(1)
-
-    else:
-        print("Invalid choice. Exiting.")
-        exit(1)
-
-    # Create the scanner instance
-    scanner = Scanner(selected_templates)
+    scanner = Scanner(templates)
 
     # Run the scan
-    print(f"\nScanning target URL: {target_url}")
+    print(f"Scanning target URL: {target_url}")
+    
     results = scanner.scan(target_url)
+    if isinstance(results, dict):  # In case only one YAML file is present
+        results = [results]
+    
+    for idx, result in enumerate(results):
+        # Colorize "True" or "False"
+        if str(result["matched"]) == "True":
+            status_color = f"{Fore.GREEN}True{Style.RESET_ALL}"
+        else:
+            status_color = f"{Fore.RED}False{Style.RESET_ALL}"
 
-    # Display the results
-    print("\nScan Results:")
-    if not results:
-        print("No results found or templates did not match any conditions.")
-    else:
-        for idx, result in enumerate(results):
-            print(f"[{idx + 1}] {result['name']}:[{result['matched']}][{result['severity']}]")
+        # Colorize the severity level
+        if result["severity"].lower() == "critical":
+            severity_color = f"{Fore.RED}{Style.BRIGHT}{result['severity'].capitalize()}{Style.RESET_ALL}"
+        elif result["severity"].lower() == "high":
+            severity_color = f"{Fore.YELLOW}{Style.BRIGHT}{result['severity'].capitalize()}{Style.RESET_ALL}"
+        elif result["severity"].lower() == "low":
+            severity_color = f"{Fore.GREEN}{Style.BRIGHT}{result['severity'].capitalize()}{Style.RESET_ALL}"
+        else:
+            severity_color = f"{Fore.WHITE}{Style.BRIGHT}{result['severity'].capitalize()}{Style.RESET_ALL}"
+
+        # Print the result with colored "True" or "False" and severity
+        print(
+            f"[{idx + 1}] {result['name']}: "
+            f"[{status_color}]"
+            f"[{severity_color}]"
+        )
+
 
 if __name__ == "__main__":
     main()

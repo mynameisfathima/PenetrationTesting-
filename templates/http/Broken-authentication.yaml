@@ -1,10 +1,12 @@
-name: Broken Authentication Vulnerability Test
-description: Test for broken authentication vulnerabilities in login forms.
-severity: Critical
-author: Project
-tags:
-  - authentication
-  - security
+id: broken-authentication-test
+info:
+  name: Broken Authentication Vulnerability Test
+  description: Test for broken authentication vulnerabilities in login forms.
+  severity: Critical
+  author: Project
+  tags:
+    - authentication
+    - security
 
 http:
   - method: POST

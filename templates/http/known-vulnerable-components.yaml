@@ -1,10 +1,12 @@
-name: Components with Known Vulnerabilities Test
-description: Test for vulnerable components by checking versions.
-severity: High
-author: Project
-tags:
-  - components
-  - vulnerabilities
+id: known-vulnerable-components-test
+info:
+  name: Components with Known Vulnerabilities Test
+  description: Test for vulnerable components by checking versions.
+  severity: High
+  author: Project
+  tags:
+    - components
+    - vulnerabilities
 
 http:
   - method: GET

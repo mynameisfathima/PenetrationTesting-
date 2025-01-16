@@ -1,7 +1,9 @@
-name: Strict Transport Security Header Check
-author: Project
-severity: low
-description: Checks for the presence of the Strict-Transport-Security header.
+id: strict-transport-security-check
+info:
+  name: Strict Transport Security Header Check
+  author: Project
+  severity: low
+  description: Checks for the presence of the Strict-Transport-Security header.
 
 http:
   - method: GET

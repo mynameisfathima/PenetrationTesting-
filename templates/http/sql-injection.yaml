@@ -1,13 +1,15 @@
-name: SQL Injection Vulnerability
-description: Extensive test for SQL injection vulnerabilities in query parameters and form fields.
-severity: Critical
-author: Project
-tags:
-  - sql
-  - injection
-  - critical
-  - database
-  - web
+id: sql-vulnerability-test
+info:
+  name: SQL Injection Vulnerability
+  description: Extensive test for SQL injection vulnerabilities in query parameters and form fields.
+  severity: Critical
+  author: Project
+  tags:
+    - sql
+    - injection
+    - critical
+    - database
+    - web
 
 http:
   - method: GET
