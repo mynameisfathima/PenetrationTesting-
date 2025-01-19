@@ -1,14 +1,14 @@
-# main.py
 import argparse
 import os
 import sys
+import datetime
 from colorama import Fore, Style, init  # Import colorama
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import yaml
 from engine.template_parser import load_templates_from_directory
 from engine.scanner import Scanner
-from banner import show_banner  
-
+from banner import show_banner
+from jinja import generate_html_report  # Import the generate_html_report function
 
 def main():
     # Initialize colorama
@@ -71,7 +71,9 @@ def main():
     results = scanner.scan(target_url)
     if isinstance(results, dict):  # In case only one YAML file is present
         results = [results]
-    
+
+    # Prepare the results for printing and saving
+    scan_results = []
     for idx, result in enumerate(results):
         # Colorize "True" or "False"
         if str(result["matched"]) == "True":
@@ -86,6 +88,26 @@ def main():
             f"[{result['severity'].capitalize()}]"
         )
 
+        # Store the result in the scan_results list
+        scan_results.append({
+            "name": result['name'],
+            "matched": result['matched'],
+            "severity": result['severity'],
+            "url": result.get('url', 'N/A'),  # Example to capture URL if available
+            "description": result.get('description', 'No description'),
+            "recommendation": result.get('recommendation', 'No recommendation')
+        })
+    
+    # Structure data for the report
+    data = {
+        "website": target_url,
+        "date": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "total_vulnerabilities": len(scan_results),
+        "vulnerabilities": scan_results
+    }
+
+    # Generate HTML report with the scan_results
+    generate_html_report(data, "scan_report.html")
 
 if __name__ == "__main__":
     main()
