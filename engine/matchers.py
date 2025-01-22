@@ -66,19 +66,27 @@ def regex_match(response: Response, matcher: Dict[str, Any]) -> bool:
 
 def word_match(response: Response, matcher: Dict[str, Any]) -> bool:
     """ 
-    Checks if th respose body contains the word
+    Checks if the response body contains the specified words.
     """
     words_to_search = matcher.get("words", [])
     condition = matcher.get("condition", "or").lower()
 
-    if not words_to_search or not isinstance(words_to_search, list):
+    # Validate that `words_to_search` contains strings
+    words_to_search = [str(word) for word in words_to_search if isinstance(word, (str, int, float))]
+
+    # Return False if no valid words are available
+    if not words_to_search:
         return False
 
     pool_of_response_text = response.text
+
+    # Check based on the specified condition
     if condition == "and":
         return all(word in pool_of_response_text for word in words_to_search)
     elif condition == "or":
         return any(word in pool_of_response_text for word in words_to_search)
+    else:
+        return False  # Default case if an unknown condition is provided
 
 
 def status_match(response: Response, matcher: Dict[str, Any]) -> bool:
@@ -87,6 +95,5 @@ def status_match(response: Response, matcher: Dict[str, Any]) -> bool:
     """
     statuses = matcher.get("status", [])
     return response.status_code in statuses
-
 
 
