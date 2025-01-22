@@ -5,6 +5,7 @@ import datetime
 from colorama import Fore, Style, init  # Import colorama
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import yaml
+import html
 from engine.template_parser import load_templates_from_directory
 from engine.scanner import Scanner
 from banner import show_banner
@@ -90,12 +91,12 @@ def main():
 
         # Store the result in the scan_results list
         scan_results.append({
-            "name": result['name'],
-            "matched": result['matched'],
-            "severity": result['severity'],
-            "url": result.get('url', 'N/A'),  # Example to capture URL if available
-            "description": result.get('description', 'No description'),
-            "recommendation": result.get('recommendation', 'No recommendation')
+        "name": html.escape(result['name']),
+        "matched": result['matched'],
+        "severity": html.escape(result['severity']),
+        "url": html.escape(result.get('url', 'N/A')),  # Escape URL
+        "description": html.escape(result.get('description', 'No description')),  # Escape description
+        "recommendation": html.escape(result.get('recommendation', 'No recommendation'))  # Escape recommendation
         })
     
     # Structure data for the report
