@@ -9,7 +9,7 @@ import html
 from engine.template_parser import load_templates_from_directory
 from engine.scanner import Scanner
 from banner import show_banner
-from jinja import generate_html_report  # Import the generate_html_report function
+from jinja import generate_html_report, convert_html_to_pdf  # Import the generate_html_report and pdf function
 
 def main():
     # Initialize colorama
@@ -109,6 +109,6 @@ def main():
 
     # Generate HTML report with the scan_results
     generate_html_report(data, "scan_report.html")
-
+    convert_html_to_pdf("scan_report.html", "scan_report.pdf")
 if __name__ == "__main__":
     main()
