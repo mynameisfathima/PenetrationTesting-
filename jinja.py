@@ -1,5 +1,6 @@
 from typing import Dict, Any
 from jinja2 import Template
+from weasyprint import HTML
 
 def generate_html_report(data: Dict[str, Any], template_path: str = "scan_report.html"):
     # Load HTML template
@@ -47,8 +48,16 @@ def generate_html_report(data: Dict[str, Any], template_path: str = "scan_report
     # Render the template with data
     html_report = template.render(data)
 
-    # Save the report to a file
+     # Save the HTML report to a file
     with open(template_path, "w") as file:
         file.write(html_report)
 
-    print(f"Report generated successfully: {template_path}")
+    print(f"HTML report generated successfully: {template_path}")
+
+def convert_html_to_pdf(html_path: str, pdf_path: str = "scan_report.pdf"):
+    """Convert an HTML report to a PDF using WeasyPrint."""
+    try:
+        HTML(html_path).write_pdf(pdf_path)
+        print(f"PDF report generated successfully: {pdf_path}")
+    except Exception as e:
+        print(f"Error converting HTML to PDF: {e}")
