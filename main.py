@@ -9,7 +9,7 @@ import html
 from engine.template_parser import load_templates_from_directory
 from engine.scanner import Scanner
 from banner import show_banner
-from jinja import generate_html_report, convert_html_to_pdf  # Import the generate_html_report and pdf function
+from jinja import generate_html_report, convert_html_to_pdf,fetch_description_and_recommendation # Import the generate_html_report and pdf function
 
 def main():
     # Initialize colorama
@@ -28,10 +28,10 @@ def main():
     )
     parser.add_argument(
         "-t", "--templates",
-        default="templates/http",
+        default="templates",
         help=(
             "Path to a specific template file or directory containing YAML templates. "
-            "Default: templates/http"
+            "Default: templates"
         ),
     )
     parser.add_argument(
@@ -45,6 +45,8 @@ def main():
     target_url = args.target_url
     templates_path = args.templates
     selected_tags = args.tag
+     # Updated templates path logic
+    templates_path = args.templates or os.getcwd() 
      
     # Check and load YAML templates
     if os.path.isfile(templates_path) and templates_path.endswith(".yaml"):
@@ -90,14 +92,17 @@ def main():
         )
 
         # Store the result in the scan_results list
+    for idx, result in enumerate(results):
+        chatgpt_data = fetch_description_and_recommendation(result['name'], result['severity'])
         scan_results.append({
-        "name": html.escape(result['name']),
-        "matched": result['matched'],
-        "severity": html.escape(result['severity']),
-        "url": html.escape(result.get('url', 'N/A')),  # Escape URL
-        "description": html.escape(result.get('description', 'No description')),  # Escape description
-        "recommendation": html.escape(result.get('recommendation', 'No recommendation'))  # Escape recommendation
+            "name": html.escape(result['name']),
+            "matched": result['matched'],
+            "severity": html.escape(result['severity']),
+            "url": html.escape(result.get('url', 'N/A')),
+            "description": html.escape(chatgpt_data["description"]),
+            "recommendation": html.escape(chatgpt_data["recommendation"])
         })
+
     
     # Structure data for the report
     data = {
