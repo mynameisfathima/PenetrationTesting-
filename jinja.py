@@ -5,7 +5,7 @@ from weasyprint import HTML
 import google.generativeai as genai
 
 # Set up the API key
-genai.configure(api_key="AIzaSyDQPrM4ZlRoVkOhVh4Ern1imsd5bNtESt8")
+genai.configure(api_key="API_KEY")
 
 # Function to fetch description and recommendation using Google's AI
 def fetch_description_and_recommendation(vuln_name: str, severity: str) -> Dict[str, str]:
